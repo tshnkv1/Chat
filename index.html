@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css">
+    <title>Chat</title>
+</head>
+<body>
+    <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm">
+        <h5 class="my-0 mr-md-auto font-weight-normal flex-grow-1">Tshnkv1</h5>
+        <nav class="my-2 my-md-0 mr-md-3">
+            <a class="p-2 text-dark" href="#">Features</a>
+            <a class="p-2 text-dark" href="#">Enterprise</a>
+            <a class="p-2 text-dark" href="#">Support</a>
+            <a class="p-2 text-dark" href="#">Pricing</a>
+        </nav>
+        <a class="btn btn-outline-primary" href="#">Sign up</a>
+    </div>
+    <div class="container">
+        <div class="py-5 text-center">
+            <h2>Chat</h2>
+            <p class="lead">Enter your name and start a conversation</p>
+        </div>
+        <div class="row">
+            <div class="col-6">
+                <h3>Form of messages</h3>
+                <form id="messageForm">
+                    <label for="name">Name</label>
+                    <input type="text" name="name" id="name" class="form-control" placeholder="Enter a name" autocomplete="off"/>
+                    <br />
+                    <label for="message">Message</label>
+                    <textarea name="message" id="message" class="form-control" placeholder="Enter a message"></textarea>
+                    <br />
+                    <input type="submit" value="Send" class="btn btn-danger" />
+                </form>
+            </div>
+            <div class="col-6">
+                <h3>Messages</h3>
+                <div id="allMessages"></div>
+            </div>
+        </div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const min = 1;
+        const max = 6;
+        const random = Math.floor(Math.random() * (max - min)) + min;
+
+        let alertClass;
+
+        switch (random) {
+            case 1:
+                alertClass = 'secondary';
+                break;
+            case 2:
+                alertClass = 'danger';
+                break;
+            case 3:
+                alertClass = 'success';
+                break;
+            case 4:
+                alertClass = 'warning';
+                break;
+            case 5:
+                alertClass = 'info';
+                break;
+            case 6:
+                alertClass = 'light';
+                break;
+            default:
+                break;
+        }
+
+
+
+
+        $(function() {
+            const socket = io.connect();
+
+            const $form = $('#messageForm');
+            const $name = $('#name');
+            const $message = $('#message');
+            const $allMessages = $('#allMessages');
+
+            $form.submit((event) => {
+                event.preventDefault();
+                socket.emit('send message', {name: $name.val(), message: $message.val(), className: alertClass});
+                $message.val('');
+            });
+
+            socket.on('add message', (data) => {
+                $allMessages.append(`<div class="alert alert-${data.className}"><b>${data.name}</b>: ${data.message}</div>`);
+            });
+        });
+    </script>
+</body>
+</html>
